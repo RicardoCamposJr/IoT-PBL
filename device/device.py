@@ -86,7 +86,7 @@ def menuConfig():
 def menuComand() :
     global choice
     global comand
-    
+
     choice = int(input("\nBem vindo seu dispositivo!\n[0] - Ligar\n[1] - Definir temperatura\n[2] - Desligar\n"))
     if choice == 0:
         # Iniciando o envio de dados via UDP:
@@ -99,7 +99,7 @@ createSockets()
 connectSocketTCP()
 createReceiverTCPThread()
 
-
+# main()
 # Início da manipulação do dispositivo pelo usuário via terminal
 while (comand):
     menuComand()

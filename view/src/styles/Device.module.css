@@ -11,7 +11,6 @@
 }
 
 .containerSet {
-  display: flex;
   font-weight: 500;
   background-color: rgb(241, 241, 241);
   border-radius: 8px;

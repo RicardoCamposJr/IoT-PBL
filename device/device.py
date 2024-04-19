@@ -10,8 +10,9 @@ TCP_PORT = ''
 UDP_PORT = ''
 deviceName = ''
 state = False
-shutdown = False
+setTemp = False
 variavel = ''
+mensagem = 21
 
 socketUDP = ''
 socketTCP = ''
@@ -19,6 +20,7 @@ socketTCP = ''
 receiverTCPThread = ''
 transmitterUDPThread = ''
 verificationThread= ''
+changeTempThread = ''
 
 # Conecta o socket TCP ao broker
 def connectSocketTCP():
@@ -52,6 +54,22 @@ def createTransmitterUDPThread():
     transmitterUDPThread = threading.Thread(target=transmitterUDPData, daemon=True)
     transmitterUDPThread.start()
 
+def createChangeTempThread():
+    global changeTempThread
+
+    changeTempThread = threading.Thread(target=listenChangeTemp, daemon=True)
+    changeTempThread.start()
+    changeTempThread.join()
+
+def listenChangeTemp():
+    global mensagem
+    global choice
+
+    while choice == 1:
+        global mensagem
+        mensagem = int(input("Insira a temperatura: "))
+        choice = 0
+
 # Função para receber comandos do servidor via TCP
 def receiveTCPServer():
     global socketTCP
@@ -79,22 +97,26 @@ def transmitterUDPData():
     global choice
     global state
     global deviceName
+    global setTemp
+    global mensagem
 
     while True:
         # Caso o usuário escolha desligar o dispositivo
         if (choice == 2):
-            mensagem = "Dispositivo desligado."
             state = False
-            container = {"data": mensagem, "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "state": False, "deviceName": deviceName}
+            container = {"data": "Dispositivo desligado.", "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "state": False, "deviceName": deviceName}
             socketUDP.sendto(pickle.dumps(container), (serverIP, UDP_PORT))
             print("\nDispositivo desligado.\nInsira seu comando: ")
             choice = 3
-        if choice == 0:
-            mensagem = "Mensagem UDP"
+        if choice == 0 or choice == 1:
+            if choice == 1:
+                createChangeTempThread()
+                choice = 0
             state = True
             container = {"data": mensagem, "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "state": True, "deviceName": deviceName}
             socketUDP.sendto(pickle.dumps(container), (serverIP, UDP_PORT))
             time.sleep(1)
+            
 
 # Menu inicial de configuração do dispositivo
 def menuConfig():
@@ -112,7 +134,8 @@ def menuConfig():
 # Controle do dispositivo pelo usuário via terminal
 def menuComand() :
     global choice
-    choice = int(input("\nBem vindo seu dispositivo!\n[0] - Ligar\n[1] - Definir temperatura\n[2] - Desligar\n"))
+    if choice != 1:
+        choice = int(input("\nBem vindo seu dispositivo!\n[0] - Ligar\n[1] - Definir temperatura\n[2] - Desligar\n"))
     
     
 

@@ -10,8 +10,6 @@ TCP_PORT = ''
 UDP_PORT = ''
 deviceName = ''
 state = False
-setTemp = False
-variavel = ''
 mensagem = 21
 
 socketUDP = ''
@@ -75,18 +73,23 @@ def receiveTCPServer():
     global socketTCP
     global state
     global choice
+    global mensagem
     while True:
         data = socketTCP.recv(1024)
         if not data:
             break
-        if data.decode() == "POWER":
+        if pickle.loads(data)[0] == "POWER":
             if state == False:
                 state = True
                 choice = 0
             elif state == True:
                 state = False
                 choice = 2
-        print("Comando recebido do servidor TCP:", data.decode())
+        if pickle.loads(data)[0] == "SET":
+            mensagem = pickle.loads(data)[1]
+            state = True
+            choice = 0
+        print("Comando recebido do servidor TCP:", pickle.loads(data))
         print(state)
 
 # Função para enviar dados para o servidor via UDP
@@ -97,7 +100,6 @@ def transmitterUDPData():
     global choice
     global state
     global deviceName
-    global setTemp
     global mensagem
 
     while True:

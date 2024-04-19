@@ -17,7 +17,8 @@ devices = {}
 
 request1 = True
 addr = 'localhost'
-comand = 'ON'
+# COMANDO E TEMPERATURA
+comand = ['ON', 0]
 
 # Função para receber dados via UDP do cliente
 def receiveDataUDP():
@@ -39,7 +40,7 @@ def sendComandToClientTCP():
     global comand
 
     # O addr e o comand virão de uma requisição da interface
-    tcpClients[addr[0]]["deviceInfo"].send(comand.encode())
+    tcpClients[addr[0]]["deviceInfo"].send(pickle.dumps(comand))
     print("comando enviado")
 
 def createSocketUDP():
@@ -91,8 +92,24 @@ def get_devices():
 def patch_data(ip):
     global comand
     global addr
-    
-    comand = 'POWER'
+
+    comand = ['POWER', 0]
+
+    if ip in devices.keys():
+        addr = devices[ip]["IP/PORT"]
+        createTransmitterTCPComandThread()
+    else:
+        return "Dispositivo não encontrado"
+
+    time.sleep(1.1)
+    return jsonify(devices[ip]), 200
+
+@app.route('/set/<string:ip>/<int:temp>', methods=['PATCH'])
+def set_temp(ip, temp):
+    global comand
+    global addr
+
+    comand = ['SET', temp]
 
     if ip in devices.keys():
         addr = devices[ip]["IP/PORT"]

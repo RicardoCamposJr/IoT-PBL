@@ -1,0 +1,67 @@
+.container {
+  display: flex;
+  background-color: rgb(241, 241, 241);
+  border-radius: 8px;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  width: 40vw;
+  justify-content: space-between;
+  flex: none;
+}
+
+.containerSet {
+  display: flex;
+  font-weight: 500;
+  background-color: rgb(241, 241, 241);
+  border-radius: 8px;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  margin-left: 1rem;
+  padding: 1rem;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modalBtn {
+  margin-top: 0.7rem;
+  background-color: black;
+  color: rgb(224, 224, 224);;
+  border-radius: 4px;
+  font-weight: 600;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.data {
+  display: flex;
+  border-radius: 8px;
+  gap: 1rem;
+  align-items: center;
+}
+
+.icon {
+  font-size: x-large;
+}
+
+.icontemp {
+  font-size: larger;
+}
+
+.powerOFFIcon {
+  cursor: pointer;
+  color: crimson;
+}
+
+.powerONIcon {
+  cursor: pointer;
+  color: rgb(20, 210, 99);
+}
+
+.iconChange {
+  cursor: pointer;
+}

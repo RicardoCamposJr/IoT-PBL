@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(24, 23, 24);
+}
+
+.logo {
+  font-size: larger;
+  padding: 1rem;
+  justify-content: center;
+  align-items: center;
+  color: aliceblue;
+  font-weight: 500;
+}

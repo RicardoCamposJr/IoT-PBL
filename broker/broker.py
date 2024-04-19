@@ -3,6 +3,7 @@ import threading
 from flask import Flask, jsonify, request
 import pickle
 import time
+from flask_cors import CORS
 
 
 IP_SERVER = 'localhost'
@@ -28,7 +29,7 @@ def receiveDataUDP():
     while True:
         data, addr = socketUDP.recvfrom(1024)
         data = pickle.loads(data)
-        devices[addr[0]] = {"IP/PORT": addr, "message": data["data"], "time": data["time"], "status": data["state"], "deviceName": data["deviceName"]}
+        devices[addr[0]] = {"IPPORT": addr, "message": data["data"], "time": data["time"], "status": data["state"], "deviceName": data["deviceName"]}
         if not data:
             break
         print(f'Mensagem recebida do cliente UDP {addr}: {data}')
@@ -83,6 +84,7 @@ def createAPIThread():
 #--------------------------------------------------------------------------
 #API:
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"], "allow_headers": ["Content-Type", "Authorization"]}})
 
 @app.route('/devices', methods=['GET'])
 def get_devices():
@@ -96,7 +98,7 @@ def patch_data(ip):
     comand = ['POWER', 0]
 
     if ip in devices.keys():
-        addr = devices[ip]["IP/PORT"]
+        addr = devices[ip]["IPPORT"]
         createTransmitterTCPComandThread()
     else:
         return "Dispositivo não encontrado"
@@ -112,7 +114,7 @@ def set_temp(ip, temp):
     comand = ['SET', temp]
 
     if ip in devices.keys():
-        addr = devices[ip]["IP/PORT"]
+        addr = devices[ip]["IPPORT"]
         createTransmitterTCPComandThread()
     else:
         return "Dispositivo não encontrado"
@@ -135,7 +137,7 @@ while True:
     print(f'Cliente TCP conectado: {addr}')
 
     # Coloca os dispositivos em um dicionário para o envio de comandos TCP:
-    tcpClients[addr[0]] = {"IP/PORT": addr, "deviceInfo": tcp_client}
+    tcpClients[addr[0]] = {"IPPORT": addr, "deviceInfo": tcp_client}
 
     # Thread de configuraçao do dispositivo para mostrar o deviceName dele antes de liga-lo na interface.
     # E tambem, para configurar o dicionario que será retornado por HTTP.

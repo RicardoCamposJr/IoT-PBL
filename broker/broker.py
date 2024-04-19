@@ -1,5 +1,9 @@
 import socket
 import threading
+from flask import Flask, jsonify, request
+import pickle
+import time
+
 
 IP_SERVER = 'localhost'
 UDP_PORT = 8889
@@ -9,20 +13,24 @@ socketTCP = ''
 transmitterTCPComandThread = ''
 # Lista para armazenar os clientes TCP
 tcpClients = {}
+devices = {}
 
-request = True
+request1 = True
 addr = 'localhost'
 comand = 'ON'
 
 # Função para receber dados via UDP do cliente
 def receiveDataUDP():
     global socketUDP
+    global devices
 
     while True:
         data, addr = socketUDP.recvfrom(1024)
+        data = pickle.loads(data)
+        devices[addr[0]] = {"IP/PORT": addr, "message": data["data"], "time": data["time"], "status": data["state"], "deviceName": data["deviceName"]}
         if not data:
             break
-        print(f'Mensagem recebida do cliente UDP {addr}: {data.decode()}')
+        print(f'Mensagem recebida do cliente UDP {addr}: {data}')
 
 # Função para enviar comandos para os clientes via TCP
 def sendComandToClientTCP():
@@ -31,15 +39,8 @@ def sendComandToClientTCP():
     global comand
 
     # O addr e o comand virão de uma requisição da interface
-    tcpClients[addr].send(comand.encode())
-  
-# Função para receber mensagens dos clientes TCP
-def receber_do_cliente_tcp(tcp_client):
-    while True:
-        data = tcp_client.recv(1024)
-        if not data:
-            break
-        print(f'Mensagem recebida do cliente TCP {tcp_client.getpeername()}: {data.decode()}')
+    tcpClients[addr[0]]["deviceInfo"].send(comand.encode())
+    print("comando enviado")
 
 def createSocketUDP():
     global socketUDP
@@ -74,9 +75,38 @@ def createReceiverUDPData():
     receiverUDPDataThread = threading.Thread(target=receiveDataUDP)
     receiverUDPDataThread.start()
 
+def createAPIThread():
+    APIThread = threading.Thread(target=app.run, args=("localhost", 8082), daemon=True)
+    APIThread.start()
 
+#--------------------------------------------------------------------------
+#API:
+app = Flask(__name__)
+
+@app.route('/devices', methods=['GET'])
+def get_devices():
+    return jsonify(devices)
+
+@app.route('/power/<string:ip>/', methods=['PATCH'])
+def patch_data(ip):
+    global comand
+    global addr
+    
+    comand = 'POWER'
+
+    if ip in devices.keys():
+        addr = devices[ip]["IP/PORT"]
+        createTransmitterTCPComandThread()
+    else:
+        return "Dispositivo não encontrado"
+
+    time.sleep(1.1)
+    return jsonify(devices[ip]), 200
+
+#--------------------------------------------------------------------------
 
 # main()
+createAPIThread()
 createSocketTCP()
 createSocketUDP()
 
@@ -87,11 +117,11 @@ while True:
     tcp_client, addr = socketTCP.accept()
     print(f'Cliente TCP conectado: {addr}')
 
-    # Coloca os clientes em um dicionário com o {IP:Cliente}
-    tcpClients[addr] = tcp_client
+    # Coloca os dispositivos em um dicionário para o envio de comandos TCP:
+    tcpClients[addr[0]] = {"IP/PORT": addr, "deviceInfo": tcp_client}
 
-    # Aqui ficaria a request da interface
-    if (request == True):
-        # Criando a thread responsável por enviar comandos
-        createTransmitterTCPComandThread()
-        createReceiverUDPData()
+    # Thread de configuraçao do dispositivo para mostrar o deviceName dele antes de liga-lo na interface.
+    # E tambem, para configurar o dicionario que será retornado por HTTP.
+    receiverConfigurationThread = threading.Thread(target=receiveDataUDP)
+    receiverConfigurationThread.start()
+    receiverConfigurationThread.join()

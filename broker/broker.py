@@ -6,7 +6,7 @@ import time
 from flask_cors import CORS
 
 
-IP_SERVER = 'localhost'
+IP_SERVER = '192.168.25.105'
 UDP_PORT = 8889
 TCP_PORT = 8888
 socketUDP = ''
@@ -139,8 +139,9 @@ while True:
     # Coloca os dispositivos em um dicionário para o envio de comandos TCP:
     tcpClients[addr[0]] = {"IPPORT": addr, "deviceInfo": tcp_client}
 
+    print(tcpClients.keys())
+
     # Thread de configuraçao do dispositivo para mostrar o deviceName dele antes de liga-lo na interface.
     # E tambem, para configurar o dicionario que será retornado por HTTP.
     receiverConfigurationThread = threading.Thread(target=receiveDataUDP)
     receiverConfigurationThread.start()
-    receiverConfigurationThread.join()

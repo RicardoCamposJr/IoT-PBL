@@ -6,7 +6,7 @@ import time
 from flask_cors import CORS
 
 
-IP_SERVER = '192.168.25.105'
+IP_SERVER = 'localhost'
 UDP_PORT = 8889
 TCP_PORT = 8888
 socketUDP = ''

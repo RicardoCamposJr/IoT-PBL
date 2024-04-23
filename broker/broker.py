@@ -29,7 +29,10 @@ def receiveDataUDP():
     while True:
         data, addr = socketUDP.recvfrom(1024)
         data = pickle.loads(data)
-        devices[addr[0]] = {"IPPORT": addr, "message": data["data"], "time": data["time"], "status": data["state"], "deviceName": data["deviceName"]}
+        if data["data"] == "EXIT":
+            del devices[addr[0]]
+        else:
+            devices[addr[0]] = {"IPPORT": addr, "message": data["data"], "time": data["time"], "status": data["state"], "deviceName": data["deviceName"]}
         if not data:
             break
         print(f'Mensagem recebida do cliente UDP {addr}: {data}')

@@ -3,6 +3,8 @@ import threading
 import time
 from datetime import datetime
 import pickle
+import signal
+import sys
 
 choice = 2
 serverIP = ''
@@ -19,6 +21,24 @@ receiverTCPThread = ''
 transmitterUDPThread = ''
 verificationThread= ''
 changeTempThread = ''
+
+# Funçao caso o programa seja encerrado pelo terminal 
+def handler(sig, frame):
+    global serverIP
+    global UDP_PORT
+    global socketUDP
+    global choice
+    global state
+    global deviceName
+    global mensagem
+    global choice
+
+    print("Programa sendo encerrado...")
+    choice = 5
+    # Faça aqui o que você precisa antes de sair
+    container = {"data": "EXIT", "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "state": True, "deviceName": deviceName}
+    socketUDP.sendto(pickle.dumps(container), (serverIP, UDP_PORT))
+    sys.exit(0)
 
 # Conecta o socket TCP ao broker
 def connectSocketTCP():
@@ -42,7 +62,7 @@ def createSockets():
 def createReceiverTCPThread():
     global receiverTCPThread
 
-    receiverTCPThread = threading.Thread(target=receiveTCPServer)
+    receiverTCPThread = threading.Thread(target=receiveTCPServer, daemon=True)
     receiverTCPThread.start()
 
 # Cria e roda a thread de envio de dados via UDP
@@ -74,7 +94,7 @@ def receiveTCPServer():
     global state
     global choice
     global mensagem
-    while True:
+    while choice != 5:
         data = socketTCP.recv(1024)
         if not data:
             break
@@ -102,7 +122,7 @@ def transmitterUDPData():
     global deviceName
     global mensagem
 
-    while True:
+    while choice != 5:
         # Caso o usuário escolha desligar o dispositivo
         if (choice == 2):
             state = False
@@ -147,6 +167,8 @@ createSockets()
 connectSocketTCP()
 createReceiverTCPThread()
 createTransmitterUDPThread()
+
+signal.signal(signal.SIGINT, handler)
 
 # main()
 # Início da manipulação do dispositivo pelo usuário via terminal

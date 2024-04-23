@@ -5,7 +5,7 @@ export default function Header() {
   return(
     <div className={style.container}>
       <div className={style.logo}>
-        Air Controller
+        Controlador de dispositivos
       </div>
     </div>
   )

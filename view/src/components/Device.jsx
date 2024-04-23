@@ -82,36 +82,57 @@ export default function Device({name, temp, status, IPPORT, time}) {
   }, [change]);
 
   return(
-    <>
+    <div className={style.card}>
+    {/* Div das info */}
       <div className={style.container}>
-        <div className={style.data}>
-          <TbAirConditioningDisabled className={style.icon}/>
-          <div>{name}</div>
+
+        <div className={style.total}>
+          {/* Div do power */}
+          <div className={style.power}>
           {status ? (
-            <>
-              <FaTemperatureEmpty className={style.icontemp}/>
-              <div>{temp}°C</div>
-            </>
-          ): (
-            <>
-              <FaTemperatureEmpty className={style.icontemp}/>
-              <div>{temp}</div>
-            </>
-          )}
-          <IoIosGitNetwork className={style.icontemp}/>
-          <div>{IPPORT[0]}</div>
+              <FaPowerOff onClick={handleClick} className={style.powerONIcon}/>
+            ): 
+              <FaPowerOff onClick={handleClick} className={style.powerOFFIcon}/>
+            }
+          </div>
+
+          <div className={style.rightData}>
+
+            {/* Div do nome */}
+            <div className={style.info}>
+              <TbAirConditioningDisabled className={style.icon}/>
+              <span>{name}</span>
+            </div>
+
+            {/* Div do IP */}
+            <div className={style.info}>
+              <IoIosGitNetwork className={style.iconIP}/>
+              <span>{IPPORT[0]}</span>
+            </div>
+          </div>
+
         </div>
-        <div>
+
+        <div className={style.change}>
           <FaExchangeAlt className={style.iconChange} onClick={openModal}/>
         </div>
-        <div>
-          {status ? (
-            <FaPowerOff onClick={handleClick} className={style.powerONIcon}/>
-          ): 
-            <FaPowerOff onClick={handleClick} className={style.powerOFFIcon}/>
-          }
-        </div>
       </div>
+
+      {/* Div da temperatura */}
+      <div className={style.tempContainer}>
+        {status ? (
+          <>
+            <FaTemperatureEmpty className={style.icontemp}/>
+            <div className={style.temperature}>{temp}°C</div>
+          </>
+        ): (
+          <>
+            <FaTemperatureEmpty className={style.icontemp}/>
+            <div className={style.temperatureNot}>{temp}</div>
+          </>
+        )}
+      </div>
+
       {modalOpen && (
           <div className={style.containerSet} onClick={closeModal}>
             <div className={style.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -122,6 +143,6 @@ export default function Device({name, temp, status, IPPORT, time}) {
             </div>
           </div>
         )}
-    </>
+    </div>
   )
 }

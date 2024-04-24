@@ -18,8 +18,6 @@ devices = {}
 
 request1 = True
 addr = 'localhost'
-# COMANDO E TEMPERATURA
-comand = ['ON', 0]
 
 # Função para receber dados via UDP do cliente
 def receiveDataUDP():
@@ -31,6 +29,7 @@ def receiveDataUDP():
         data = pickle.loads(data)
         if data["data"] == "EXIT":
             del devices[addr[0]]
+            break
         else:
             devices[addr[0]] = {"IPPORT": addr, "message": data["data"], "time": data["time"], "status": data["state"], "deviceName": data["deviceName"]}
         if not data:

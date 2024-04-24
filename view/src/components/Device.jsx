@@ -30,13 +30,16 @@ export default function Device({name, temp, status, IPPORT, time}) {
       };
 
       fetchData()
+      setClicked(false)
     }
   }, [clicked]);
 
   const handleClick = () => {
     if (clicked === true) {
+      console.log("mudou")
       setClicked(false)
     } else if (clicked === false) {
+      console.log("mudou")
       setClicked(true)
     }
   };

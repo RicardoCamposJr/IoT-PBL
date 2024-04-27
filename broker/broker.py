@@ -27,6 +27,7 @@ def receiveDataUDP():
     global socketUDP
     global devices
     global tcpClients
+    global addr
 
     socketUDP.settimeout(5)
 
@@ -44,9 +45,11 @@ def receiveDataUDP():
         except socket.timeout:
             try:
                 comand = ['FIT', 0]
-                tcpClients[addr[0]]["deviceInfo"].send(pickle.dumps(comand))
+                if addr[0] in tcpClients:
+                    tcpClients[addr[0]]["deviceInfo"].send(pickle.dumps(comand))
             except:
-                del devices[addr[0]]
+                if addr[0] in devices:
+                    del devices[addr[0]]
                 print("Tempo limite expirado. Nenhum dado recebido após 5 segundos.")
                 break
 

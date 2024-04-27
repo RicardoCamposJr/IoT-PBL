@@ -5,6 +5,7 @@ import { IoIosGitNetwork } from "react-icons/io";
 import { FaPowerOff } from "react-icons/fa";
 import { FaExchangeAlt } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import brokerIP from './../broker'
 
 export default function Device({name, temp, status, IPPORT, time}) {
 
@@ -17,7 +18,7 @@ export default function Device({name, temp, status, IPPORT, time}) {
       // Função para fazer a requisição
       const fetchData = async () => {
         try {
-          await fetch(`http://${brokerIP}8082/power/${IPPORT[0]}/`, {
+          await fetch(`http://${brokerIP}:8082/power/${IPPORT[0]}/`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',

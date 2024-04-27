@@ -88,31 +88,72 @@ def listenChangeTemp():
         mensagem = int(input("Insira a temperatura: "))
         choice = 0
 
+
+
+
+
+def connectToServer():
+    global serverIP
+    global TCP_PORT
+    global socketTCP
+    global choice
+
+    # Criação do socket TCP
+    socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Tenta conectar ao servidor
+    while True:
+        try:
+            socketTCP.connect((serverIP, TCP_PORT))
+            print(f'Conectado ao servidor TCP em {serverIP}:{TCP_PORT}')
+            choice = 2
+            break  # Se a conexão for bem-sucedida
+        except ConnectionRefusedError:
+            print("Conexão recusada. Tentando novamente em 5 segundos...")
+            time.sleep(5)
+        except Exception as e:
+            print("Erro ao conectar ao servidor:", e)
+            time.sleep(5)
+
+
+
+
+
+
 # Função para receber comandos do servidor via TCP
 def receiveTCPServer():
     global socketTCP
     global state
     global choice
     global mensagem
+    global serverIP
+    global TCP_PORT
+
+    # Se choice = 5, significa que o dispositivo foi encerrado pelo terminal (CTRL C)
     while choice != 5:
-        data = socketTCP.recv(1024)
-        if not data:
-            break
-        if pickle.loads(data)[0] == "POWER":
-            if state == False:
+        try:
+            data = socketTCP.recv(1024)
+            if not data:
+                break
+            if pickle.loads(data)[0] == "POWER":
+                if state == False:
+                    state = True
+                    choice = 0
+                elif state == True:
+                    state = False
+                    choice = 2
+            if pickle.loads(data)[0] == "SET":
+                mensagem = pickle.loads(data)[1]
                 state = True
                 choice = 0
-            elif state == True:
-                state = False
-                choice = 2
-        if pickle.loads(data)[0] == "SET":
-            mensagem = pickle.loads(data)[1]
-            state = True
-            choice = 0
-        if pickle.loads(data)[0] == "FIT":
-            fit = True
-        print("Comando recebido do servidor TCP:", pickle.loads(data))
-        print(state)
+            if pickle.loads(data)[0] == "FIT":
+                fit = True
+            print("Comando recebido do servidor TCP:", pickle.loads(data))
+        # Caso o broker seja desconectado
+        except ConnectionResetError:
+            print("O servidor foi desconectado.")
+            # Tentar reconectar
+            connectToServer()
+            
 
 # Função para enviar dados para o servidor via UDP
 def transmitterUDPData():
@@ -166,7 +207,7 @@ def menuComand() :
 # Configurando o dispositivo antes de iniciá-lo:
 menuConfig()
 createSockets()
-connectSocketTCP()
+connectToServer()
 createReceiverTCPThread()
 createTransmitterUDPThread()
 

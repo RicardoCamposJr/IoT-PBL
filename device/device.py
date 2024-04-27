@@ -22,6 +22,8 @@ transmitterUDPThread = ''
 verificationThread= ''
 changeTempThread = ''
 
+stop_threads = False
+
 # Funçao caso o programa seja encerrado pelo terminal 
 def handler(sig, frame):
     global serverIP
@@ -114,11 +116,6 @@ def connectToServer():
             print("Erro ao conectar ao servidor:", e)
             time.sleep(5)
 
-
-
-
-
-
 # Função para receber comandos do servidor via TCP
 def receiveTCPServer():
     global socketTCP
@@ -127,6 +124,7 @@ def receiveTCPServer():
     global mensagem
     global serverIP
     global TCP_PORT
+    global stop_threads
 
     # Se choice = 5, significa que o dispositivo foi encerrado pelo terminal (CTRL C)
     while choice != 5:
@@ -147,6 +145,9 @@ def receiveTCPServer():
                 choice = 0
             if pickle.loads(data)[0] == "FIT":
                 fit = True
+            if pickle.loads(data)[0] == "DEL":
+                stop_threads = True
+                choice = 5
             print("Comando recebido do servidor TCP:", pickle.loads(data))
         # Caso o broker seja desconectado
         except ConnectionResetError:
@@ -200,7 +201,6 @@ def menuComand() :
     if choice != 1:
         choice = int(input("\nBem vindo seu dispositivo!\n[0] - Ligar\n[1] - Definir temperatura\n[2] - Desligar\n"))
     
-    
 
 # Configurando o dispositivo antes de iniciá-lo:
 menuConfig()
@@ -213,7 +213,7 @@ signal.signal(signal.SIGINT, handler)
 
 # main()
 # Início da manipulação do dispositivo pelo usuário via terminal
-while (True):
+while (not stop_threads):
     menuComand()
     
 

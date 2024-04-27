@@ -92,12 +92,12 @@ def createSocketTCP():
 # Thread que envia comandos via TCP para os dispositivos
 def createTransmitterTCPComandThread():
     # Inicia a thread para enviar comandos para os clientes via TCP
-    transmitterTCPComandThread = threading.Thread(target=sendComandToClientTCP)
+    transmitterTCPComandThread = threading.Thread(target=sendComandToClientTCP, daemon=True)
     transmitterTCPComandThread.start()
 
 # Thread que recebe dados via UDP dos dispositivos
 def createReceiverUDPData():
-    receiverUDPDataThread = threading.Thread(target=receiveDataUDP)
+    receiverUDPDataThread = threading.Thread(target=receiveDataUDP, daemon=True)
     receiverUDPDataThread.start()
 
 # Thread para acionar a API
@@ -152,6 +152,8 @@ def del_device(ip):
     comand = ['DEL', 0]
 
     if ip in devices.keys():
+        addr = devices[ip]["IPPORT"]
+        createTransmitterTCPComandThread()
         del devices[ip]
         
     else:
@@ -181,5 +183,5 @@ while True:
     tcpClients[addr[0]] = {"IPPORT": addr, "deviceInfo": tcp_client}
 
     # Criação de uma thread para o dispositivo conectado
-    receiverConfigurationThread = threading.Thread(target=receiveDataUDP)
+    receiverConfigurationThread = threading.Thread(target=receiveDataUDP, daemon=True)
     receiverConfigurationThread.start()

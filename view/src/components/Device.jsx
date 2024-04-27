@@ -17,7 +17,7 @@ export default function Device({name, temp, status, IPPORT, time}) {
       // Função para fazer a requisição
       const fetchData = async () => {
         try {
-          await fetch(`http://localhost:8082/power/${IPPORT[0]}/`, {
+          await fetch(`http://${brokerIP}8082/power/${IPPORT[0]}/`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export default function Device({name, temp, status, IPPORT, time}) {
     
     const fetchData = async () => {
       try {
-        await fetch(`http://localhost:8082/set/${IPPORT[0]}/${changeTemp}`, {
+        await fetch(`http://${brokerIP}:8082/set/${IPPORT[0]}/${changeTemp}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

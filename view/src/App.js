@@ -2,22 +2,25 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import Header from './components/Header';
 import ListDevices from './components/ListDevices';
+import brokerIP from './broker'
 
 
 function App() {
   const [devices, setDevices] = useState([])
+  const [serverStatus, setServerStatus] = useState(false)
 
   useEffect(() => {
     // Função para fazer a requisição
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8082/devices');
+        const response = await fetch(`http://${brokerIP}:8082/devices`);
         const data = await response.json();
         const listaDeObjetos = Object.entries(data).map(([chave, valor]) => ({ chave, ...valor }));
-        // console.log(listaDeObjetos)
+        setServerStatus(true)
         setDevices(listaDeObjetos);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
+        setServerStatus(false)
       }
     };
 
@@ -32,7 +35,12 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <ListDevices listDevices={devices}/>
+      {serverStatus ? (
+        <ListDevices listDevices={devices}/>
+      ): 
+      <div className='server-off'>
+        Servidor desconectado!
+      </div>}
     </div>
     
   );

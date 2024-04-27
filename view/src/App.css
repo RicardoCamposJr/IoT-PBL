@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+.server-off {
+  font-size: x-large;
+  padding: 2rem;
+  justify-content: center;
+  align-items: center;
+  color: rgb(24, 23, 24);
+  font-weight: 600;
+}

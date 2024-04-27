@@ -5,38 +5,52 @@ import pickle
 import time
 from flask_cors import CORS
 
-
-IP_SERVER = 'localhost'
+# IP do broker
+IP_SERVER = ''
+# Porta UDP padrão
 UDP_PORT = 8889
+# Porta TCP padrão
 TCP_PORT = 8888
+# Socket UDP
 socketUDP = ''
+# Socket TCP
 socketTCP = ''
+# Thread para o envio de comandos TCP para dispositivos
 transmitterTCPComandThread = ''
-# Lista para armazenar os clientes TCP
+# Lista para armazenar os dispositivos e suas informações de conexão
 tcpClients = {}
+# Lista para armazenar os dispositivos e suas mensagens
 devices = {}
 
-request1 = True
-addr = 'localhost'
-
-# Função para receber dados via UDP do cliente
+# Função para receber dados via UDP do cliente, utilizada pela thread de recebimento de mensagens
 def receiveDataUDP():
     global socketUDP
     global devices
+    global tcpClients
+
+    socketUDP.settimeout(5)
 
     while True:
-        data, addr = socketUDP.recvfrom(1024)
-        data = pickle.loads(data)
-        if data["data"] == "EXIT":
-            del devices[addr[0]]
-            break
-        else:
-            devices[addr[0]] = {"IPPORT": addr, "message": data["data"], "time": data["time"], "status": data["state"], "deviceName": data["deviceName"]}
-        if not data:
-            break
-        print(f'Mensagem recebida do cliente UDP {addr}: {data}')
+        try:
+            data, addr = socketUDP.recvfrom(1024)
+            data = pickle.loads(data)
+            if data["data"] == "EXIT":
+                del devices[addr[0]]
+                break
+            else:
+                devices[addr[0]] = {"IPPORT": addr, "message": data["data"], "time": data["time"], "status": data["state"], "deviceName": data["deviceName"]}
+            print(f'Mensagem recebida do cliente UDP {addr}: {data}')
 
-# Função para enviar comandos para os clientes via TCP
+        except socket.timeout:
+            try:
+                comand = ['FIT', 0]
+                tcpClients[addr[0]]["deviceInfo"].send(pickle.dumps(comand))
+            except:
+                del devices[addr[0]]
+                print("Tempo limite expirado. Nenhum dado recebido após 5 segundos.")
+                break
+
+# Função para enviar comandos para os clientes via TCP, utilizada pela thread de envio de comandos
 def sendComandToClientTCP():
     global tcpClients
     global addr
@@ -44,8 +58,8 @@ def sendComandToClientTCP():
 
     # O addr e o comand virão de uma requisição da interface
     tcpClients[addr[0]]["deviceInfo"].send(pickle.dumps(comand))
-    print("comando enviado")
 
+# Criação do socket UDP do broker
 def createSocketUDP():
     global socketUDP
     global IP_SERVER
@@ -57,6 +71,7 @@ def createSocketUDP():
     socketUDP.bind((IP_SERVER, UDP_PORT))
     print(f'Servidor UDP iniciado em {IP_SERVER}:{UDP_PORT}')
 
+# Criação do socket TCP do broker
 def createSocketTCP():
     global socketTCP
     global IP_SERVER
@@ -70,17 +85,20 @@ def createSocketTCP():
     socketTCP.listen()
     print(f'Servidor TCP iniciado em {IP_SERVER}:{TCP_PORT}')
 
+# Thread que envia comandos via TCP para os dispositivos
 def createTransmitterTCPComandThread():
     # Inicia a thread para enviar comandos para os clientes via TCP
     transmitterTCPComandThread = threading.Thread(target=sendComandToClientTCP)
     transmitterTCPComandThread.start()
 
+# Thread que recebe dados via UDP dos dispositivos
 def createReceiverUDPData():
     receiverUDPDataThread = threading.Thread(target=receiveDataUDP)
     receiverUDPDataThread.start()
 
+# Thread para acionar a API
 def createAPIThread():
-    APIThread = threading.Thread(target=app.run, args=("localhost", 8082), daemon=True)
+    APIThread = threading.Thread(target=app.run, args=(str(IP_SERVER), 8082), daemon=True)
     APIThread.start()
 
 #--------------------------------------------------------------------------
@@ -126,9 +144,13 @@ def set_temp(ip, temp):
 
 #--------------------------------------------------------------------------
 
-# main()
+# Configuração do IP do broker
+IP_SERVER = str(input("Insira o IP deste servidor: "))
+# Criação da thread da API
 createAPIThread()
+# Criação do socket TCP
 createSocketTCP()
+# Criação do socket UDP
 createSocketUDP()
 
 
@@ -138,12 +160,9 @@ while True:
     tcp_client, addr = socketTCP.accept()
     print(f'Cliente TCP conectado: {addr}')
 
-    # Coloca os dispositivos em um dicionário para o envio de comandos TCP:
+    # Coloca os dispositivos em um dicionário para o envio de comandos TCP
     tcpClients[addr[0]] = {"IPPORT": addr, "deviceInfo": tcp_client}
 
-    print(tcpClients.keys())
-
-    # Thread de configuraçao do dispositivo para mostrar o deviceName dele antes de liga-lo na interface.
-    # E tambem, para configurar o dicionario que será retornado por HTTP.
+    # Criação de uma thread para o dispositivo conectado
     receiverConfigurationThread = threading.Thread(target=receiveDataUDP)
     receiverConfigurationThread.start()

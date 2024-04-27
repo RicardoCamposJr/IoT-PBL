@@ -109,6 +109,8 @@ def receiveTCPServer():
             mensagem = pickle.loads(data)[1]
             state = True
             choice = 0
+        if pickle.loads(data)[0] == "FIT":
+            fit = True
         print("Comando recebido do servidor TCP:", pickle.loads(data))
         print(state)
 

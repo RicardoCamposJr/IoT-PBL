@@ -27,7 +27,7 @@ function App() {
     // Chama a função de busca de dados quando o componente monta
     fetchData();
 
-    const interval = setInterval(fetchData, 2000)
+    const interval = setInterval(fetchData, 1000)
 
     return () => clearInterval(interval)
   }, []);

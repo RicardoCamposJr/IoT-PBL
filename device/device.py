@@ -8,8 +8,8 @@ import sys
 
 choice = 2
 serverIP = ''
-TCP_PORT = ''
-UDP_PORT = ''
+TCP_PORT = 8888
+UDP_PORT = 8889
 deviceName = ''
 state = False
 mensagem = 21
@@ -192,8 +192,6 @@ def menuConfig():
 
     print("Configure seu dispositivo:")
     serverIP = input("IP do Servidor: ")
-    UDP_PORT = int(input("Porta UDP: "))
-    TCP_PORT = int(input("Porta TCP: "))
     deviceName = input("Nome do dispositivo: ")
 
 # Controle do dispositivo pelo usuário via terminal

@@ -4,6 +4,7 @@ import { FaTemperatureEmpty } from "react-icons/fa6";
 import { IoIosGitNetwork } from "react-icons/io";
 import { FaPowerOff } from "react-icons/fa";
 import { FaExchangeAlt } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import { useEffect, useState } from "react";
 import brokerIP from './../broker'
 
@@ -12,6 +13,7 @@ export default function Device({name, temp, status, IPPORT, time}) {
   const [clicked, setClicked] = useState(false)
   const [changeTemp, setChangeTemp] = useState()
   const [change, setChange] = useState(false)
+  const [clickedDelete, setClickedDelete] = useState(false)
 
   useEffect(() => {
     if (clicked) {
@@ -42,6 +44,36 @@ export default function Device({name, temp, status, IPPORT, time}) {
     } else if (clicked === false) {
       console.log("mudou")
       setClicked(true)
+    }
+  };
+
+  useEffect(() => {
+    if (clickedDelete) {
+      // Função para fazer a requisição
+      const fetchData = async () => {
+        try {
+          await fetch(`http://${brokerIP}:8082/delete/${IPPORT[0]}/`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+          });
+        } catch (error) {
+          console.error('Erro ao buscar dados:', error);
+        }
+      };
+
+      fetchData()
+      setClickedDelete(false)
+    }
+  }, [clickedDelete]);
+
+  const handleClickDelete = () => {
+    if (clickedDelete === true) {
+      setClickedDelete(false)
+    } else if (clickedDelete === false) {
+      setClickedDelete(true)
     }
   };
 
@@ -119,6 +151,9 @@ export default function Device({name, temp, status, IPPORT, time}) {
 
         <div className={style.change}>
           <FaExchangeAlt className={style.iconChange} onClick={openModal}/>
+        </div>
+        <div>
+          <MdDelete className={style.iconChange} onClick={handleClickDelete}/>
         </div>
       </div>
 

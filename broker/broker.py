@@ -4,9 +4,10 @@ from flask import Flask, jsonify, request
 import pickle
 import time
 from flask_cors import CORS
+import os
 
 # IP do broker
-IP_SERVER = ''
+IP_SERVER = '0.0.0.0'
 # Porta UDP padrão
 UDP_PORT = 8889
 # Porta TCP padrão
@@ -107,7 +108,7 @@ def createAPIThread():
 #--------------------------------------------------------------------------
 #API:
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"], "allow_headers": ["Content-Type", "Authorization"]}})
+CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "PATCH", 'DELETE'], "allow_headers": ["Content-Type", "Authorization"]}})
 
 @app.route('/devices', methods=['GET'])
 def get_devices():
@@ -126,7 +127,6 @@ def patch_data(ip):
     else:
         return "Dispositivo não encontrado"
 
-    time.sleep(1.1)
     return jsonify(devices[ip]), 200
 
 @app.route('/set/<string:ip>/<int:temp>', methods=['PATCH'])
@@ -142,8 +142,22 @@ def set_temp(ip, temp):
     else:
         return "Dispositivo não encontrado"
 
-    time.sleep(1.1)
     return jsonify(devices[ip]), 200
+
+@app.route('/delete/<string:ip>/', methods=['DELETE'])
+def del_device(ip):
+    global comand
+    global addr
+
+    comand = ['DEL', 0]
+
+    if ip in devices.keys():
+        del devices[ip]
+        
+    else:
+        return "Dispositivo não encontrado"
+
+    return "Dispositivo exclído!"
 
 #--------------------------------------------------------------------------
 

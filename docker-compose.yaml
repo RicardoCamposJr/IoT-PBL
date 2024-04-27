@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  client:
+    build: 
+      context: ./view
+    networks:
+      - iot-system-network
+    environment:
+      - IP_API_BROKER= 192.168.25.105:8082
+    ports:
+      - "3000:3000"
+  server:
+    build:
+      context: ./broker
+    stdin_open: true
+    tty: true
+    hostname: broker
+    networks:
+      - iot-system-network
+    ports:
+      - "8888:8888"
+      - "8889:8889/udp"
+      - "8082:8082"
+  device:
+    build:
+      context: ./device
+    environment:
+      - IP_BROKER= 192.168.25.105
+    stdin_open: true
+    tty: true
+    networks:
+      - iot-system-network
+networks:
+  iot-system-network:
+    driver: bridge

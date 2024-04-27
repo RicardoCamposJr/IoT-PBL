@@ -129,7 +129,7 @@ def patch_data(ip):
 
     return jsonify(devices[ip]), 200
 
-@app.route('/set/<string:ip>/<int:temp>', methods=['PATCH'])
+@app.route('/set/<string:ip>/<int:temp>', methods=['POST'])
 def set_temp(ip, temp):
     global comand
     global addr

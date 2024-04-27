@@ -99,11 +99,10 @@ export default function Device({name, temp, status, IPPORT, time}) {
   };
 
   useEffect(() => {
-    
     const fetchData = async () => {
       try {
         await fetch(`http://${brokerIP}:8082/set/${IPPORT[0]}/${changeTemp}`, {
-          method: 'PATCH',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },

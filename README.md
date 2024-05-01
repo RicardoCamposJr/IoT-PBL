@@ -5,7 +5,7 @@
 
 - Entre na pasta "IoT-PBL/"
 
-## Configuração:
+## Configuração com Docker:
 
 - ### Interface:
   
@@ -91,3 +91,27 @@
 - ### Postman:
 -   O arquivo de testes de rotas do Postman está anexado a pasta raiz do projeto:
 -     PBL.postman_collection.json
+
+
+## Configuração sem Docker:
+
+-  Caso seu computador já possua as linguagens de programação utilizadas:
+  
+       - Node.js
+       - Python
+
+-  Para rodar a aplicação siga os seguintes passos:
+
+    - Interface:
+      -  Entre na pasta: "view/"
+      -  No terminal, execute o comando: npm install
+      -  E então, execute em seguida o comando: npm start
+  
+    - Broker:
+      -  Entre na pasta: "broker/"
+      -  No terminal, execute o comando: python broker.py
+
+    - Device:
+      -  Entre na pasta: "device/"
+      -  No terminal, execute o comando: python device.py
+      

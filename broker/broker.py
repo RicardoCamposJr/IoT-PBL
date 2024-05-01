@@ -163,8 +163,8 @@ def del_device(ip):
 
 #--------------------------------------------------------------------------
 
-# Configuração do IP do broker
-IP_SERVER = str(input("Insira o IP deste servidor: "))
+# # Configuração do IP do broker
+# IP_SERVER = str(input("Insira o IP deste servidor: "))
 # Criação da thread da API
 createAPIThread()
 # Criação do socket TCP

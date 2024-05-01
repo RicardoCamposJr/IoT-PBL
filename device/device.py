@@ -90,10 +90,6 @@ def listenChangeTemp():
         mensagem = int(input("Insira a temperatura: "))
         choice = 0
 
-
-
-
-
 def connectToServer():
     global serverIP
     global TCP_PORT

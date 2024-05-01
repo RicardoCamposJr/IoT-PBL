@@ -1,2 +1,2 @@
-const brokerIP = 'localhost'
+const brokerIP = ''
 export default brokerIP

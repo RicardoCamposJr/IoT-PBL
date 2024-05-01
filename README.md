@@ -1,0 +1,93 @@
+## Instalação
+
+- Baixe a aplicação do GitHub:
+  - No terminal, rode: git clone https://github.com/RicardoCamposJr/IoT-PBL.git
+
+- Entre na pasta "IoT-PBL/"
+
+## Configuração:
+
+- ### Interface:
+  
+  - #### 1 - Configurar o endereço do broker:
+  
+    1.1 - Localize a pasta "broker.js" dentro no caminho: view/src/broker.js.
+
+    1.2 - Altere o valor da variável brokerIP para o IP que o broker será iniciado. E salve o arquivo.
+
+        OBS.: O IP dessa variável pode ser 'localhost' ou o IP da sua máquina mesmo. Assim,
+        para saber o IP da sua máquina, utilize o comando 'ipconfig' no terminal e use o 
+        endereço IPv4. O valor da variável DEVE SER UMA STRING!
+
+  - #### 2 - Construir a imagem docker da interface:
+
+    No terminal, rode o comando: docker build --pull --rm -f "view\Dockerfile" -t interface-image "view"
+
+    Assim, a imagem será construída e será referenciada como "interface-image".
+
+
+  - #### 3 - Subir o container da imagem docker:
+
+    No terminal, rode o comando: docker run --name interface -p 3000:3000 interface-image
+
+    Aguarde até aparecer a mensagem "webpack compiled with 1 warning" no terminal.
+
+    Assim, a aplicação irá estar disponível para uso no navegador, no endereço: 
+      <IP_DA_SUA_MAQUINA>:3000
+
+    OBS.: Não finalize o terminal, caso isso ocorra, a aplicação irá finalizar.
+
+- ### Broker:
+
+  - #### 1 - Construir a imagem docker do broker:
+
+    - Em outro terminal, rode o comando: docker build --pull --rm -f "broker\Dockerfile" -t broker-image "broker"
+
+    - Assim, a imagem será construída e será referenciada como "broker-image".
+
+  - #### 2 - Subir o container da imagem docker:
+
+    No terminal, rode o comando: docker run --name broker -p 8888:8888 -p 8889:8889/udp -p 8082:8082 broker-image
+
+    Assim, a API do broker irá estar disponível para uso/testes no endereço: 
+      <IP_DA_SUA_MAQUINA>:8082
+    
+    - #### 2.1 - Rotas:
+  
+      - GET: <IP_DA_SUA_MAQUINA>:8082/devices
+        - Retorna todos os devices conectados no momento.
+  
+      - POST: <IP_DA_SUA_MAQUINA>:8082/set/<IP: string>/<temperatura: int>/
+        - Muda a temperatura do device com o IP fornecido.
+
+      - PATCH: <IP_DA_SUA_MAQUINA>:8082/power/<IP: string>/
+        - Liga o device de acordo com o IP fornecido.
+      
+      - DELETE: <IP_DA_SUA_MAQUINA>:8082/delete/<string:ip>/
+        - Deleta o device de acordo com o IP fornecido.
+
+- ### Device:
+  - #### 1 - Construir a imagem docker do device:
+
+    Em outro terminal, rode o comando: docker build --pull --rm -f "device\Dockerfile" -t device-image "device"
+
+    Assim, a imagem será construída e será referenciada como "device-image".
+
+  - #### 2 - Subir o container da imagem docker:
+
+    No terminal, rode o comando: docker run -it --name device device-image
+
+    Adiante, configure o device inserindo as informações que forem requisitadas, como:
+      - IP do broker: <IP_DA_SUA_MAQUINA>
+      - Nome do dispositivo: ...
+
+  Assim, o dispositivo irá se conectar ao broker, que por sua vez, responderá as requisições
+  feitas pela interface via TCP. Note que, a visualização do device já está disponível
+  na interface no navegador rodando no container docker.
+
+  É possível manipular o device através do terminal com os comandos de Ligar, Definir temperatura
+  e Desligar. Assim como, manipulá-lo pela interface.
+
+- ### Postman:
+-   O arquivo de testes de rotas do Postman está anexado a pasta raiz do projeto:
+-     PBL.postman_collection.json

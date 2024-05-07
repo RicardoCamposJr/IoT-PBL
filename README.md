@@ -1,3 +1,52 @@
+# Relatório do PBL - Internet of Things
+
+## Introdução:
+<p style="text-align: justify;">
+Este relatório tem como objetivo documentar o processo de aprendizado e construção do projeto sobre Internet das Coisas (IoT). No presente projeto, foi solicitado o desenvolvimento de um serviço que permita facilitar a comunicação entre diferentes dispositivos e aplicações na rede local.
+<p style="text-align: justify;">
+Para isso, foi decidido que o sistema deveria ser implementado através de um serviço de message broker, que é um componente de software que atua como intermediário entre diferentes sistemas de software, aplicativos ou componentes distribuídos.
+<p style="text-align: justify;">
+A aplicação consiste em uma interface amigável para o usuário controlar e visualizar os dispositivos conectados. Também, um broker que servirá de intermediário entre a interface e os dispositivos. E por fim, os dispositivos em si, que neste projeto, consistem em ar-condicionados.
+<p style="text-align: justify;">
+Dessa forma, o serviço de message broker implementado poderá intermediar e gerenciar as mensagens do sistema.
+
+## Resultados e discussões:
+<p style="text-align: justify;">
+Para a construção da interface, foi-se utilizado o framework React.js, que utiliza Javascript como linguagem de programação. Assim, a aplicação React faz requisições a cada segundo para o servidor, simulando uma atualização em "tempo real" na interface utilizada pelo usuário. Essas requisições são realizadas via Hypertext Transfer Protocol (HTTP) que é um protocolo de comunicação utilizado para transferir dados na World Wide Web. O HTTP utiliza o TCP/IP (Transmission Control Protocol/Internet Protocol) como seu protocolo de transporte subjacente. O TCP/IP é a base da Internet e fornece um conjunto de regras para a comunicação entre dispositivos em uma rede. Por isso, foi-se utilizado esse protocolo pela segurança e confiabilidade na entrega de mensagens. O HTTP é uma camada acima do TCP/IP na pilha de protocolos de comunicação. Ele utiliza o TCP/IP para estabelecer conexões entre clientes e servidores (nesse projeto, a interface e o broker), transmitir mensagens de solicitação e resposta e garantir a entrega confiável e ordenada dessas mensagens.
+
+<p style="text-align: justify;">
+Assim, é possivel enviar requisições HTTP de GET, POST, PUT e DELETE através da interface para controlar os dispositivos conectados no sistema. É possível visualizar as rotas implementadas e o que cada uma faz na seção de instalação deste relatório.
+
+<p style="text-align: justify;">
+Desse modo, o broker recebe essas requisições HTTP via TCP/IP da interface e responde-as através das rotas implementadas na API, construída com o framework Flask, utilizando Python. Essas respostas retornadas pelo broker provém da manipulacão e gerenciamento dos dados advindos dos dispositivos.
+
+<p style="text-align: justify;">
+Assim, o broker possui duas "faces", a face HTTP da API, onde a interface se comunica, e a face dos dispositivos. Assim, o broker intermedia as mensagens dessas aplicações, gerenciando, manipulando e respondendo dados conforme o sistema requisita.
+
+<p style="text-align: justify;">
+Nesse contexto, a face do broker referente aos dispositivos utiliza a comunicação TCP para o envio de comandos advindos da interface pros dispositivos conectados aos sistema. Essa comunicação via TCP foi utilizada visando uma abordagem confiável, assegurando assim, a entrega das mensagens (comandos) para os dispositivos. De modo análogo, o broker também utiliza uma abordagem não confiável para o recebimento dos dados provenientes dos dispositivos, utilizando uma comunicação UDP para tal fim. A abordagem não confiável foi utilizada nesse contexto por conta do envio frequente de dados, assim, caso algum dado se perca no trajeto, outro dado logo em seguida será enviado, substituindo o dado perdido anteriormente.
+
+<p style="text-align: justify;">
+Os dispositivos são implementados com as duas formas de comunicação, tanto TCP quanto UDP. Assim, eles são capazes de esperar comandos via TCP provenientes do broker e enviar comandos via UDP para o mesmo. Os dispositivos possuem os comandos de: Ligar, Mudar temperatura e Desligar. Ao ligar, o dispositivo começa a enviar dados via UDP ao broker (que por sua vez, manipula os dados e responde à interface). Ao desligar, o dispositivo para de enviar esses dados, mas ainda permanece em "stand by", podendo ligá-lo novamente. Esses comandos podem ser recebidos via broker ou utilizados via terminal, inserindo a escolha desejada.
+
+<p style="text-align: justify;">
+O broker e os dispositivos utilizam threads, que são unidades básicas de execução dentro de um processo em um sistema operacional. Essa abordagem foi utilizada para utilizar um processamento paralelo, já que é necessário realizar múltiplas tarefas simultaneamente. No broker, são criadas threads para a execução da API e uma thread para "escutar" cada dispositivo conectado, recebendo assim os dados via UDP. Para os dispositivos são criadas threads para: receber comandos via TCP do broker; threads para para o envio de dados via UDP; e threads para o recebimento de comandos via terminal por parte do usuário. Conseguindo assim, realizar todo o processamento paralelo do sistema, atendendo a todas as funcionalidades impostas pelo problema.
+
+<p style="text-align: justify;">
+Para fins de confiabilidade, caso o cabo de rede de algum nó seja retirado do sistema fechado, o nó que foi excluído irá tentar reconectar-se ao componente no qual se comunicava. Assim como foi solicitado como parte da resolução do problema. A título de documentação e parametrização do projeto, o tempo de reconexão de um nó ao sistema, após a retirada do cabo de rede, se apresentou em torno de 35 segundos de espera. Após esse tempo de espera, o nó que foi desconectado se torna disponível na rede.
+
+<p style="text-align: justify;">
+Para uma melhor facilidade de execução e multiplicidade de componentes, foi-se utilizado o Docker. Assim, há a criação de contêineres a partir da imagem de cada nó presente no sistema. O docker, por padrão, constrói uma rede própria para os contêineres, desse modo, é necessário o espelhamento de portas entre os contêineres e o host (o computador rodando o docker). Assim, é possível acessar as aplicações na rede através do IP do host e a porta que está sendo mapeada no contêiner. Veja como como configurar e rodar o Docker do projeto, na seção de intalação desse relatório.
+
+<p style="text-align: justify;">
+Para todos os componentes desse sistema foram desenvolvidos contêineres Docker, para facilitar a execução de mais de uma instância. Da mesma forma, a API REST do broker foi projetada e testada usando o Postman para garantir a compatibilidade com a arquitetura REST.
+
+### Observações:
+<p style="text-align: justify;">
+
+- Ao excluir o dispositivo pela interface, todas as threads dele são extintas, exceto a thread referente aos comandos via terminal. Diante disso, é necessário uma entrada qualquer pelo teclado, para a confirmação de retirada do dispositivo. Assim, o programa é encerrado por completo.
+- Para todos os componentes do sistema, existe o tratamento de exceções caso o componente seja encerrado com o comando (CTRL + C) ou caso o terminal seja fechado.
+
 ## Instalação
 
 - Baixe a aplicação do GitHub:
@@ -88,9 +137,6 @@
   É possível manipular o device através do terminal com os comandos de Ligar, Definir temperatura
   e Desligar. Assim como, manipulá-lo pela interface.
 
-- ### Postman:
--   O arquivo de testes de rotas do Postman está anexado a pasta raiz do projeto:
--     PBL.postman_collection.json
 
 
 ## Configuração sem Docker:
@@ -114,4 +160,9 @@
     - Device:
       -  Entre na pasta: "device/"
       -  No terminal, execute o comando: python device.py
+
+
+## Postman:
+-   O arquivo de testes de rotas do Postman está anexado a pasta raiz do projeto:
+    - PBL.postman_collection.json
       

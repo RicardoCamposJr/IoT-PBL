@@ -21,16 +21,44 @@ Assim, é possivel enviar requisições HTTP de GET, POST, PUT e DELETE através
 Desse modo, o broker recebe essas requisições HTTP via TCP/IP da interface e responde-as através das rotas implementadas na API, construída com o framework Flask, utilizando Python. Essas respostas retornadas pelo broker provém da manipulacão e gerenciamento dos dados advindos dos dispositivos.
 
 <p style="text-align: justify;">
-Assim, o broker possui duas "faces", a face HTTP da API, onde a interface se comunica, e a face dos dispositivos. Assim, o broker intermedia as mensagens dessas aplicações, gerenciando, manipulando e respondendo dados conforme o sistema requisita.
+Assim, o broker possui duas "faces", a face HTTP da API, onde a interface se comunica, e a face dos dispositivos. Assim, o broker intermedia as mensagens dessas aplicações, gerenciando, manipulando e respondendo dados conforme o sistema requisita. Na figura 1, é possível a visualização top-down do sistema como um todo, utilizando o diagrama estrutural para tal fim.
+
+<div style="text-align: center;">
+
+![alt text](image-1.png)
+
+Figura 2: Diagrama estrutural do sistema
+
+</div>
 
 <p style="text-align: justify;">
-Nesse contexto, a face do broker referente aos dispositivos utiliza a comunicação TCP para o envio de comandos advindos da interface pros dispositivos conectados aos sistema. Essa comunicação via TCP foi utilizada visando uma abordagem confiável, assegurando assim, a entrega das mensagens (comandos) para os dispositivos. De modo análogo, o broker também utiliza uma abordagem não confiável para o recebimento dos dados provenientes dos dispositivos, utilizando uma comunicação UDP para tal fim. A abordagem não confiável foi utilizada nesse contexto por conta do envio frequente de dados, assim, caso algum dado se perca no trajeto, outro dado logo em seguida será enviado, substituindo o dado perdido anteriormente.
+Nesse contexto, a face do broker referente aos dispositivos utiliza a comunicação TCP para o envio de comandos advindos da interface pros dispositivos conectados aos sistema. Essa comunicação via TCP foi utilizada visando uma abordagem confiável, assegurando assim, a entrega das mensagens (comandos) para os dispositivos. De modo análogo, o broker também utiliza uma abordagem não confiável para o recebimento dos dados provenientes dos dispositivos, utilizando uma comunicação UDP para tal fim. A abordagem não confiável foi utilizada nesse contexto por conta do envio frequente de dados, assim, caso algum dado se perca no trajeto, outro dado logo em seguida será enviado, substituindo o dado perdido anteriormente. Na figura 1, é possível visualizar o fluxo de dados do sistema em uma requisição GET realizada a partir da interface.
+
+<div style="text-align: center;">
+
+![alt text](image.png)
+
+Figura 1: Fluxo de dados de uma requisição GET
+
+</div>
+
+
 
 <p style="text-align: justify;">
 Os dispositivos são implementados com as duas formas de comunicação, tanto TCP quanto UDP. Assim, eles são capazes de esperar comandos via TCP provenientes do broker e enviar comandos via UDP para o mesmo. Os dispositivos possuem os comandos de: Ligar, Mudar temperatura e Desligar. Ao ligar, o dispositivo começa a enviar dados via UDP ao broker (que por sua vez, manipula os dados e responde à interface). Ao desligar, o dispositivo para de enviar esses dados, mas ainda permanece em "stand by", podendo ligá-lo novamente. Esses comandos podem ser recebidos via broker ou utilizados via terminal, inserindo a escolha desejada.
 
+
+
 <p style="text-align: justify;">
-O broker e os dispositivos utilizam threads, que são unidades básicas de execução dentro de um processo em um sistema operacional. Essa abordagem foi utilizada para utilizar um processamento paralelo, já que é necessário realizar múltiplas tarefas simultaneamente. No broker, são criadas threads para a execução da API e uma thread para "escutar" cada dispositivo conectado, recebendo assim os dados via UDP. Para os dispositivos são criadas threads para: receber comandos via TCP do broker; threads para para o envio de dados via UDP; e threads para o recebimento de comandos via terminal por parte do usuário. Conseguindo assim, realizar todo o processamento paralelo do sistema, atendendo a todas as funcionalidades impostas pelo problema.
+O broker e os dispositivos utilizam threads, que são unidades básicas de execução dentro de um processo em um sistema operacional. Essa abordagem foi utilizada para utilizar um processamento paralelo, já que é necessário realizar múltiplas tarefas simultaneamente. No broker, são criadas threads para a execução da API e uma thread para "escutar" cada dispositivo conectado, recebendo assim os dados via UDP. Para os dispositivos são criadas threads para: receber comandos via TCP do broker; threads para para o envio de dados via UDP; e threads para o recebimento de comandos via terminal por parte do usuário. Conseguindo assim, realizar todo o processamento paralelo do sistema, atendendo a todas as funcionalidades impostas pelo problema.Na figura 3, é possível ter uma visão top-down de quais threads são utilizadas por cada componente.
+
+<div style="text-align: center;">
+
+![alt text](image-2.png)
+
+Figura 3: Threads dos componentes
+
+</div>
 
 <p style="text-align: justify;">
 Para fins de confiabilidade, caso o cabo de rede de algum nó seja retirado do sistema fechado, o nó que foi excluído irá tentar reconectar-se ao componente no qual se comunicava. Assim como foi solicitado como parte da resolução do problema. A título de documentação e parametrização do projeto, o tempo de reconexão de um nó ao sistema, após a retirada do cabo de rede, se apresentou em torno de 35 segundos de espera. Após esse tempo de espera, o nó que foi desconectado se torna disponível na rede.
